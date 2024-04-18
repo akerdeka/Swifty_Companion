@@ -1,69 +1,92 @@
-class Student {
-  final String id;
-  final String email;
-  final String login;
-  final String first_name;
-  final String last_name;
-  final String usual_full_name;
-  final String usual_first_name;
-  final String url;
-  final String phone;
-  final String displayname;
-  final String kind;
-  final String image;
-  final String link;
-  final String versions;
-  final String large;
-  final String medium;
-  final String small;
-  final String micro;
-  final bool staff;
-  final int correction_point;
-  final String pool_month;
-  final String pool_year;
-  final String location;
-  final int wallet;
-  final String anonymize_date;
-  final String data_erasure_date;
-  final String created_at;
-  final String updated_at;
-  final String alumnized_at;
-  final bool alumni;
-  final bool active;
+import 'dart:convert';
 
+class StudImageVersion {
+  late String? large;
+  late String? medium;
+  late String? small;
 
-  Student({
-    this.id = "",
-    this.email = "",
-    this.login = "",
-    this.first_name = "",
-    this.last_name = "",
-    this.usual_full_name = "",
-    this.usual_first_name = "",
-    this.url = "",
-    this.phone = "",
-    this.displayname = "",
-    this.kind = "",
-    this.image = "",
-    this.link = "",
-    this.versions = "",
+  StudImageVersion({
     this.large = "",
     this.medium = "",
     this.small = "",
-    this.micro = "",
-    this.staff = false,
-    this.correction_point = 0,
-    this.pool_month = "",
-    this.pool_year = "",
-    this.location = "",
-    this.wallet = 0,
-    this.anonymize_date = "",
-    this.data_erasure_date = "",
-    this.created_at = "",
-    this.updated_at = "",
-    this.alumnized_at = '',
-    this.alumni = false,
-    this.active = true,
   });
+}
+
+class StudImage {
+  late final StudImageVersion? versions;
+  late final String? link;
+
+  StudImage(dynamic studImage) {
+    versions = studImage['versions'];
+    link = studImage['link'];
+  }
+}
+
+class Student {
+  late final int id;
+  late final String? email;
+  late final String? login;
+  late final String? first_name;
+  late final String? last_name;
+  late final String? usual_full_name;
+  late final String? usual_first_name;
+  late final String? url;
+  late final String? phone;
+  late final String? displayname;
+  late final String? kind;
+  late final StudImage? image;
+  late final bool? staff;
+  late final int? correction_point;
+  late final String? pool_month;
+  late final String? pool_year;
+  late final String? location;
+  late final int? wallet;
+  late final String? anonymize_date;
+  late final String? data_erasure_date;
+  late final String? created_at;
+  late final String? updated_at;
+  late final String? alumnized_at;
+  late final bool? alumni;
+  late final bool? active;
+
+  Student(dynamic stud) {
+    id = stud['id'];
+    email = stud['email'];
+    login = stud['login'];
+    first_name = stud['first_name'];
+    last_name = stud['last_name'];
+    usual_full_name = stud['usual_full_name'];
+    usual_first_name = stud['usual_first_name'];
+    url = stud['url'];
+    phone = stud['phone'];
+    displayname = stud['displayname'];
+    kind = stud['kind'];
+    Map<String, dynamic> img = stud['image'];
+    StudImageVersion imgVersion = StudImageVersion(
+      large: img['versions']['large'],
+      medium: img['versions']['medium'],
+      small: img['versions']['small'],
+    );
+    image = StudImage({
+      'versions': imgVersion,
+      'link': img['link'],
+    });
+    staff = stud['staff?'];
+    correction_point = stud['correction_point'];
+    pool_month = stud['pool_month'];
+    pool_year = stud['pool_year'];
+    location = stud['location'];
+    wallet = stud['wallet'];
+    anonymize_date = stud['anonymize_date'];
+    data_erasure_date = stud['data_erasure_date'];
+    created_at = stud['created_at'];
+    updated_at = stud['updated_at'];
+
+    if (stud['alumnized_at'] != null) {
+      alumnized_at = stud['alumnized_at'];
+    }
+    alumni = stud['alumni?'];
+    active = stud['active?'];
+  }
 }
 

@@ -8,9 +8,11 @@ import 'package:swifty_companion/models/student_model.dart';
 import 'package:http/http.dart' as http;
 
 class Search extends StatefulWidget {
-  const Search({super.key, required this.storage});
+  const Search({super.key, required this.storage, required this.onStudentSelected, required this.tabController});
 
+  final ValueChanged<Student> onStudentSelected;
   final storage;
+  final tabController;
 
   @override
   State<Search> createState() => _SearchState();
@@ -19,7 +21,6 @@ class Search extends StatefulWidget {
 class _SearchState extends State<Search> {
 
   late Future<Map<String, String>> _storageValues;
-  late Future<List<Student>> _students;
 
   @override
   void initState() {
@@ -39,7 +40,6 @@ class _SearchState extends State<Search> {
           onTimeout: () {throw Exception("The service connexion is lost, please check your internet connection or try again later");}
       );
 
-      debugPrint(res.body);
       var studs = jsonDecode(res.body);
       if (studs == null || studs.isEmpty) {
         return filteredItems;
@@ -48,7 +48,7 @@ class _SearchState extends State<Search> {
       for (var stud in studs) {
         try {
           debugPrint(jsonEncode(stud));
-          filteredItems.add(Student(login: stud['login'], first_name: stud['first_name']));
+          filteredItems.add(Student(stud));
         } on Exception catch (e) {
           continue;
         }
@@ -93,7 +93,6 @@ class _SearchState extends State<Search> {
                               focusNode: focusNode,
                               autofocus: false,
                               onSubmitted: (String text) async {
-                                debugPrint("Submitted: $text");
                               },
                               decoration: const InputDecoration(
                                   enabledBorder: OutlineInputBorder(
@@ -104,14 +103,21 @@ class _SearchState extends State<Search> {
                           );
                         },
                         itemBuilder: (context, student) {
-                          return ListTile(
-                            leading: const Icon(Icons.person),
-                            titleTextStyle: const TextStyle(fontSize: 20, color: Colors.black),
-                            title: Text(student.login),
+                          return Container(
+                            width: MediaQuery.of(context).size.width - 50,
+                            child: ListTile(
+                              leading: student.image!.versions!.small != null ? Image.network(student.image!.versions!.small!,
+                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.person)) : const Icon(Icons.person),
+                              titleTextStyle: const TextStyle(fontSize: 20, color: Colors.black),
+                              title: Text(student.login!),
+                              subtitle: Text(student.displayname!),
+                            )
                           );
                         },
                         onSelected: (student) {
-                          debugPrint("Selected: ${student}");
+                          widget.onStudentSelected(student);
+                          DefaultTabController.of(context).animateTo(1);
+                          //widget.tabController.animateTo(1);
                         },
                       ),
                     ),

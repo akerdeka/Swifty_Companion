@@ -11,6 +11,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'bars/top_bar.dart';
 import 'errors/error_handler.dart';
+import 'models/student_model.dart';
 
 
 Future main() async {
@@ -46,13 +47,27 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>  with SingleTickerProviderStateMixin {
 
   bool isLogged = false;
+  Student? student;
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(vsync: this, length: 2);
+  }
 
   void _logginChanged(bool Logged) {
     setState(() {
       isLogged = Logged;
+    });
+  }
+
+  void _studentSelected(Student stud) {
+    setState(() {
+      student = stud;
     });
   }
 
@@ -67,10 +82,10 @@ class _HomePageState extends State<HomePage> {
               child: TopBar(onLoginChanged: _logginChanged)),
           body: Center(
             child: TabBarView(
-              children: [Search(storage: widget.storage,), const Profile()],
+              children: [Search(storage: widget.storage, onStudentSelected: _studentSelected, tabController: _tabController), Profile(student: student, storage: widget.storage)],
             ),
           ),
-          bottomNavigationBar: const BottomBar(),
+          bottomNavigationBar: BottomBar(tabController: _tabController),
         ),
       );
     }
