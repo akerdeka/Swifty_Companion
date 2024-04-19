@@ -11,8 +11,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'bars/top_bar.dart';
 import 'errors/error_handler.dart';
-import 'models/student_model.dart';
-
+import 'models/student_model.dart';import 'package:connectivity_plus/connectivity_plus.dart';
 
 Future main() async {
   try {
@@ -52,6 +51,7 @@ class _HomePageState extends State<HomePage>  with SingleTickerProviderStateMixi
   bool isLogged = false;
   Student? student;
   late TabController _tabController;
+  late List<ConnectivityResult> connectivityResult;
 
   @override
   void initState() {
@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage>  with SingleTickerProviderStateMixi
         child: Scaffold(
           appBar: PreferredSize(
               preferredSize: const Size.square(50),
-              child: TopBar(onLoginChanged: _logginChanged)),
+              child: TopBar(onLoginChanged: _logginChanged, storage: widget.storage)),
           body: Center(
             child: TabBarView(
               children: [Search(storage: widget.storage, onStudentSelected: _studentSelected, tabController: _tabController), Profile(student: student, storage: widget.storage)],
@@ -89,6 +89,20 @@ class _HomePageState extends State<HomePage>  with SingleTickerProviderStateMixi
         ),
       );
     }
-    return Login(onLoginChanged: _logginChanged, storage: widget.storage);
+    return FutureBuilder(
+      future: Connectivity().checkConnectivity(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        connectivityResult = snapshot.data!;
+        if (connectivityResult.contains(ConnectivityResult.mobile) || connectivityResult.contains(ConnectivityResult.wifi)) {
+          return Login(onLoginChanged: _logginChanged, storage: widget.storage);
+        }
+        return const Center(child: Text("No internet connection",
+          style: TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold)
+        ));
+      },
+    );
   }
 }

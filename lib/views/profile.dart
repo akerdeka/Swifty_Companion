@@ -105,15 +105,16 @@ class _ProfileState extends State<Profile> {
                     width: MediaQuery.of(context).size.width,
                     child: Column(
                       children: [
-                        Image.network(widget.student!.image!.versions!.large??""),
+                        Image.network(widget.student!.image!.versions!.large??"",
+                            errorBuilder: (context, error, stackTrace) => const Placeholder(strokeWidth: 0, color: Colors.blue,)),
                         Text(widget.student!.email??""),
                         Text(widget.student!.location??"Unavailable"),
                         LinearPercentIndicator(
                           lineHeight: 20.0,
                           backgroundColor: Colors.grey,
                           progressColor: Colors.blue,
-                          percent: studSnap.data!['cursus_users'][(studSnap.data!['cursus_users'] as List).length - 1]['level'] / 21,
-                          center: Text(studSnap.data!['cursus_users'][(studSnap.data!['cursus_users'] as List).length - 1]['level'].toString()),
+                          percent: (studSnap.data!['cursus_users'] as List).isEmpty ? 0 : studSnap.data!['cursus_users'][(studSnap.data!['cursus_users'] as List).length - 1]['level'] / 21,
+                          center: (studSnap.data!['cursus_users'] as List).isEmpty ? const Text("0") : Text(studSnap.data!['cursus_users'][(studSnap.data!['cursus_users'] as List).length - 1]['level'].toString()),
                         ),
                         Text('Wallet: ${widget.student!.wallet}₳'),
                         Container(height: 50,),
@@ -136,6 +137,9 @@ class _ProfileState extends State<Profile> {
                               itemCount: projects.length,
                               itemBuilder: (context, index) {
                                 String key = projects.keys.elementAt(index);
+                                if (projects.isEmpty) {
+                                  return const ListTile(title: Text("No projects found."));
+                                }
                                 return ListTile(
                                   title: Text(key),
                                   subtitle: Text(projects[key]['status'], style: TextStyle(color: projects[key]['validated'] == "Success" ? Colors.green : Colors.red)),
@@ -144,8 +148,11 @@ class _ProfileState extends State<Profile> {
                               },
                             ),
                             ListView.builder(
-                              itemCount: studSnap.data!['cursus_users'][(studSnap.data!['cursus_users'] as List).length - 1]['skills'].length,
+                              itemCount: (studSnap.data!['cursus_users'] as List).isEmpty ? 1 : studSnap.data!['cursus_users'][(studSnap.data!['cursus_users'] as List).length - 1]['skills'].length,
                               itemBuilder: (context, index) {
+                                if ((studSnap.data!['cursus_users'] as List).isEmpty) {
+                                  return const ListTile(title: Text("No skills found."));
+                                }
                                 String skill = studSnap.data!['cursus_users'][(studSnap.data!['cursus_users'] as List).length - 1]['skills'][index]['name'];
                                 double level = studSnap.data!['cursus_users'][(studSnap.data!['cursus_users'] as List).length - 1]['skills'][index]['level'];
                                 return ListTile(
